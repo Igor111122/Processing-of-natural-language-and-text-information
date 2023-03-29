@@ -88,6 +88,10 @@ embedding_dim = 256
 
 # Number of RNN units
 rnn_units = 1024
+# This model has three layers:
+#tf.keras.layers.Embedding: The input layer. A trainable lookup table that will map each character-ID to a vector with embedding_dim dimensions;
+#tf.keras.layers.GRU: A type of RNN with size units=rnn_units (You can also use an LSTM layer here.)
+#tf.keras.layers.Dense: The output layer, with vocab_size outputs. It outputs one logit for each character in the vocabulary. These are the log-likelihood of each character according to the model.
 
 class MyModel(tf.keras.Model):
   def __init__(self, vocab_size, embedding_dim, rnn_units):
@@ -196,22 +200,22 @@ class OneStep(tf.keras.Model):
     # Return the characters and model state.
     return predicted_chars, states
 
+# Defining a OneStep wrapper class for the model
 one_step_model = OneStep(model, chars_from_ids, ids_from_chars)
-
+# Starting the timer Initializing states and next_char
 start = time.time()
 states = None
 next_char = tf.constant(['ROMEO:'])
 result = [next_char]
-
+# Generating the text
 for n in range(1000):
   next_char, states = one_step_model.generate_one_step(next_char, states=states)
   result.append(next_char)
-
+#Joining the generated text and printing it
 result = tf.strings.join(result)
 end = time.time()
 print(result[0].numpy().decode('utf-8'), '\n\n' + '_'*80)
 print('\nRun time:', end - start)
-
 
 
 
